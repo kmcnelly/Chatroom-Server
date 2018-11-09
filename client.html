@@ -22,7 +22,27 @@
          document.getElementById("chatlog").appendChild(document.createTextNode(data['message']));
       });
 
-      
+//send New User
+      function sendNewUser(){
+         var name = document.getElementById("newUser_input").value;
+
+         if(name != ""){
+            socketio.emit('new_user', name, function(data){
+               if(data){
+                  $('#userInContent').show();
+                  $('#content').show();
+                  alert("check");
+               }
+               else{
+                  alert("Invalid Username. Try another!");
+               }
+            });
+         }
+
+         document.getElementById("newUser_input").value = "";
+      }
+
+// Send Message
       function sendMessage(){
          var msg = document.getElementById("message_input").value;
 
@@ -33,6 +53,7 @@
          document.getElementById("message_input").value = "";
 
       }
+
 
       //return key for sending message
       $(document).keypress(function(event){
@@ -52,10 +73,31 @@
 
       <h1>akIRC - Chatroom</h1>
 
-      <input type=text" id="message_input"/>
-      <button onclick="sendMessage()">send</button>
-      <div id="chatlog">
-         
+<!-- Entered  -->
+      <div id= "userInContent">
+         <p>Username: </p>
+         <input type=text" id="newUser_input"/>
+         <button onclick="sendNewUser()">Submit</button>
+      </div>
+
+<!-- All Content -->
+      <div id= "content">
+
+<!-- Chat window and chat input -->
+         <div id= "chatBox">
+            <input type=text" id="message_input"/>
+            <button onclick="sendMessage()">send</button>
+
+            <div id="chatlog"> 
+            </div>
+
+         </div>
+
+<!-- Display current users in room -->
+         <div id= "usersBox">
+
+         </div>
+
       </div>
    </body>
 </html>
