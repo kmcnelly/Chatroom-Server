@@ -3,6 +3,11 @@ var http = require("http"),
 	socketio = require("socket.io"),
 	fs = require("fs");
 
+<<<<<<< HEAD
+=======
+var usernames = [];
+
+>>>>>>> 19dc11697751d194d6a01a830554fa479a13c508
 
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp){
@@ -40,7 +45,25 @@ io.sockets.on("connection", function(socket){
  })
  
 	// This callback runs when a new Socket.IO connection is established.
-	
+
+	//new user entered 
+	socket.on('new_user', function(data, callback){
+		if(usernames.indexOf(data) != -1){
+			callback(false);
+
+			console.log("Username same");
+		}
+		else{
+			callback(true);
+			socket.username = data;
+			nicknames.push(socket.username);
+			io.sockets.emit('usernames', usernames);
+
+			console.log("Username registered");
+		}
+		
+	}
+
 	socket.on('message_to_server', function(data) {
 		// This callback runs when the server receives a new message from the client.
 		
