@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="/socket.io/socket.io.js"></script>
+      <script type ="text/javascript">
+      var socketio = io.connect();
+      var socket = io();
+      function sendMessage(){
+      var room = document.getElementById("roomname").value;
+         var msg = document.getElementById("message_input").value;
+         io.to('testroom').emit("message_to_server", {message:msg});
+      }
+      function joinRoom(){
+            var room = document.getElementById("roomname").value;
+            socketio.emit("join","testroom");
+      }
+      socketio.on("message_to_client",function(data) {
+         //Append an HR thematic break and the escaped HTML of the new message
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+         document.getElementById("chatlog").appendChild(document.createTextNode(data['message']));
+      });
+            function sendMessage(){
+                  var room = document.getElementById("roomname").value;
+                  var msg = document.getElementById("message_input").value;
+                  socketio.emit("message_to_server", {message:msg}, room);
+                  }
+            function joinRoom(){
+                        var room = document.getElementById("roomname").value;
+                        socketio.emit("join",room);
+                  }
+            function listRooms(){
+                  socketio.emit("listrooms");
+            }
+      </script>
+   </head>
+   <body>
+      <p id = foo></p>
+      <input type ="text" id="roomname"/>
+      <button onclick="joinRoom()">Join This Room</button>
+      <input type="text" id="message_input"/>
+      <button onclick="sendMessage()">send</button>
+      <button onclick="listRooms()">listrooms to console</button>
+      <div id="chatlog"></div>
+   </body>
+</html>

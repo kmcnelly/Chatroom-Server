@@ -3,7 +3,34 @@
    <head>
       <!-- Style Sheet -->
       <!-- <link rel="stylesheet" href="style.css"> -->
-      
+      <style type="text/css">
+
+      /*Keep content hidden before user logs in*/
+         #userInBox{
+            float: left;
+
+            height: 100px;
+            border: 1px #000 solid;
+         }
+         #content{
+            display: none;
+         }
+         #chatBox{
+            float: left;
+         }
+         #chatlog{
+            height:600px;
+            border: 1px #000 solid;
+         }
+
+         #usersBox{
+            float: right;
+
+            height: 100px;
+            border: 1px #000 solid;
+         }
+
+      </style>
 
       <!-- JQuery -->
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
@@ -16,12 +43,45 @@
       <script type ="text/javascript">
 
       var socketio = io.connect();
+/* ============================================================================
+Background Functions
+==============================================================================*/
+
+
+/*Get Message – receives the chat messages*/
       socketio.on("message_to_client",function(data) {
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
-         document.getElementById("chatlog").appendChild(document.createTextNode(data['message']));
+
+
+         // emphasis string
+         // function boldHTML() {
+         //   var boldStr = document.createElement("b");
+         //   boldStr.innerHTML = data['user'] + ': ' + data['message'];
+         //   return boldStr;
+         // }
+         // appendChild(boldHTML);
+
+         document.getElementById("chatlog").appendChild(document.createTextNode(data['user'] + ': ' + data['message']));
       });
 
+
+
+/*Get Users– Recieves updated user list and displays current users in chat room.
+   data – the array of users */
+   socketio.on('getUsers', function(data){
+      var userString = '';
+      for(i=0; i < data.length; i++){
+         userString += data[i] + '<br/>'
+      }
+      
+      console.log(userString);
+      document.getElementById("usersList").innerHTML = userString;
+   });
+
+/* ============================================================================
+Action Functions
+==============================================================================*/
 //send New User
       function sendNewUser(){
          var name = document.getElementById("newUser_input").value;
@@ -29,7 +89,8 @@
          if(name != ""){
             socketio.emit('new_user', name, function(data){
                if(data){
-                  $('#userInContent').hide();
+                  console.log(name + " added");
+                  $('#userInBox').hide();
                   $('#content').show();
                }
                else{
@@ -38,8 +99,10 @@
             });
          }
 
+         //reset the text box
          document.getElementById("newUser_input").value = "";
       }
+
 
 // Send Message
       function sendMessage(){
@@ -53,6 +116,9 @@
 
       }
 
+/* ============================================================================
+Listeners
+==============================================================================*/
       //return key for sending message
       $('#sendMs').click(function(){
          alert("clicked");
@@ -80,7 +146,7 @@
       <h1>akIRC - Chatroom</h1>
 
 <!-- Entered  -->
-      <div id= "userInContent">
+      <div id= "userInBox">
          <p>Username: </p>
          <input type=text" id="newUser_input"/>
          <button onclick="sendNewUser()">Submit</button>
@@ -92,7 +158,7 @@
 <!-- Chat window and chat input -->
          <div id= "chatBox">
             <input type=text id="message_input"/>
-            <input type="button" value="Send" id="sendMs"/>
+            <button onclick="sendMessage()">Send</button>
 
             <div id="chatlog"> 
             </div>
@@ -101,7 +167,8 @@
 
 <!-- Display current users in room -->
          <div id= "usersBox">
-
+            <p>Users:</p>
+            <p id="usersList"></p>
          </div>
 
       </div>
