@@ -33,12 +33,15 @@ io.sockets.on("connection", function(socket){
 			console.log("Username same");
 		}
 		else{
+
+			console.log("Username registered");
+			
 			callback(true);
 			socket.username = data;
 			nicknames.push(socket.username);
 			io.sockets.emit('usernames', usernames);
 
-			console.log("Username registered");
+			
 		}
 		
 	}
@@ -47,6 +50,7 @@ io.sockets.on("connection", function(socket){
 		// This callback runs when the server receives a new message from the client.
 		
 		console.log("message: "+data["message"]); // log it to the Node.JS output
+
 		io.sockets.emit("message_to_client",{message:data["message"] }) // broadcast the message to other users
 	});
 });
