@@ -2,8 +2,8 @@
 <html>
    <head>
       <!-- Style Sheet -->
-      <link rel="stylesheet" href="style.css">
-
+      <!-- <link rel="stylesheet" href="style.css"> -->
+      
 
       <!-- JQuery -->
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
@@ -29,9 +29,8 @@
          if(name != ""){
             socketio.emit('new_user', name, function(data){
                if(data){
-                  $('#userInContent').show();
+                  $('#userInContent').hide();
                   $('#content').show();
-                  alert("check");
                }
                else{
                   alert("Invalid Username. Try another!");
@@ -54,6 +53,11 @@
 
       }
 
+      //return key for sending message
+      $('#sendMs').click(function(){
+         alert("clicked");
+         sendMessage();
+      });
 
       //return key for sending message
       $(document).keypress(function(event){
@@ -65,7 +69,9 @@
 
 
       </script>
-
+<!-- ======================================================================================== -->
+<!-- HTML -->
+<!-- ======================================================================================== -->
 
    </head>
 
@@ -85,8 +91,8 @@
 
 <!-- Chat window and chat input -->
          <div id= "chatBox">
-            <input type=text" id="message_input"/>
-            <button onclick="sendMessage()">send</button>
+            <input type=text id="message_input"/>
+            <input type="button" value="Send" id="sendMs"/>
 
             <div id="chatlog"> 
             </div>
