@@ -75,10 +75,9 @@ Background Functions
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
 
-         if(document.getElementById("bold").checked){
-
+         //if the message is meant to be bold
+         if(data["bold"]){
             var str = data['user'] + ': ' + data['message'];
-
             document.getElementById("chatlog").appendChild(boldHTML(str));
          }
          else{
@@ -116,14 +115,31 @@ Background Functions
       socketio.on("whisperTo",function(data) {
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
-         document.getElementById("chatlog").appendChild(document.createTextNode('<private> '+data['user'] + ': ' + data['message']));
+         
+         //if the message is meant to be bold
+         if(data["bold"]){
+            var str = '<private> '+data['user'] + ': ' + data['message'];
+            document.getElementById("chatlog").appendChild(boldHTML(str));
+         }
+         else{
+            document.getElementById("chatlog").appendChild(document.createTextNode('<private> '+data['user'] + ': ' + data['message']));
+         }
+
       });
 
 /* WHISPER FROM SENDER– receives the chat messages*/
       socketio.on("whisperFrom",function(data) {
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
-         document.getElementById("chatlog").appendChild(document.createTextNode('<private> => '+data['user'] + ': ' + data['message']));
+
+         //if the message is meant to be bold
+         if(data["bold"]){
+            var str = '<private> => '+data['user'] + ': ' + data['message'];
+            document.getElementById("chatlog").appendChild(boldHTML(str));
+         }
+         else{
+            document.getElementById("chatlog").appendChild(document.createTextNode('<private> => '+data['user'] + ': ' + data['message']));
+         }
       });
 
 
@@ -213,14 +229,24 @@ Action Functions
          //who is the message going to
          var loc = document.getElementById("location").value;
          if(msg != ""){
+
+            //check if bold button is checked
+            var isBold = document.getElementById("bold").checked;
+
+            //if location is to entire room
             if(loc == "all"){
-            var e = document.getElementById("room");
-            var room = e.options[e.selectedIndex].text;
-            socketio.emit("message_to_server", {message:msg, room: room});
-         }
-         else{
-            socketio.emit("message_to_server", {message:msg, sendTo:loc});
-         }
+
+               //to the room
+               var e = document.getElementById("room");
+               var room = e.options[e.selectedIndex].text;
+
+               
+
+               socketio.emit("message_to_server", {message:msg, room: room, bold: isBold});
+            }
+            else{
+               socketio.emit("message_to_server", {message:msg, sendTo:loc, bold: isBold});
+            }
       }
          document.getElementById("message_input").value = "";
       

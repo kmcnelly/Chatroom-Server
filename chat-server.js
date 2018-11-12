@@ -75,16 +75,16 @@ io.sockets.on("connection", function(socket){
 			console.log("WHISPER:" + data["message"]);
 
 			//send PRIVATE to reciever
-			users[sendTo].emit("whisperTo", {message:data["message"], user: socket.username });
+			users[sendTo].emit("whisperTo", {message:data["message"], user: socket.username, bold:data["bold"] });
 
 			//send COPY PRIVATE to sender
-			users[socket.username].emit("whisperFrom", {message:data["message"], user:sendTo });
+			users[socket.username].emit("whisperFrom", {message:data["message"], user:sendTo, bold:data["bold"] });
 		}
 		else{
 			//to ALL
 			console.log("message: "+data["message"]); // log it to the Node.JS output
 
-			io.sockets.emit("message_to_client", {message:data["message"], user: socket.username }) // broadcast the message to other users
+			io.sockets.emit("message_to_client", {message:data["message"], user: socket.usernam, bold:data["bold"] }) // broadcast the message to other users
 		}
 	});
 
