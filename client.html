@@ -45,6 +45,18 @@
 /* ============================================================================
 Background Functions
 ==============================================================================*/
+// emphasis string
+      function boldHTML(str) {
+        var boldStr = document.createElement("b");
+        boldStr.innerHTML = str;
+        return boldStr;
+      }
+
+      function italicsHTML(str) {
+        var itStr = document.createElement("i");
+        itStr.innerHTML = str;
+        return itStr;
+      }
 
 
 /*Get MESSAGE – receives the chat messages*/
@@ -52,17 +64,41 @@ Background Functions
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
 
+         if(document.getElementById("bold").checked){
 
-         // emphasis string
-         // function boldHTML() {
-         //   var boldStr = document.createElement("b");
-         //   boldStr.innerHTML = data['user'] + ': ' + data['message'];
-         //   return boldStr;
-         // }
-         // appendChild(boldHTML);
+            var str = data['user'] + ': ' + data['message'];
 
-         document.getElementById("chatlog").appendChild(document.createTextNode(data['user'] + ': ' + data['message']));
+            document.getElementById("chatlog").appendChild(boldHTML(str));
+         }
+         else{
+            document.getElementById("chatlog").appendChild(document.createTextNode(data['user'] + ': ' + data['message']));
+         }
+         
       });
+
+/*NEW USER MESSAGE – */
+      socketio.on("user_entered",function(data) {
+         //Append an HR thematic break and the escaped HTML of the new message
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+
+         var newUser = '*' + data['user'] + ' has joined ';
+
+         document.getElementById("chatlog").appendChild(italicsHTML(newUser));
+      });
+
+
+/*USER LEFT MESSAGE– */
+      socketio.on("user_left",function(data) {
+
+         //Append an HR thematic break and the escaped HTML of the new message
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+
+         var oldUser = '*' + data['user'] + ' disconnected';
+
+         document.getElementById("chatlog").appendChild(italicsHTML(oldUser));
+      });
+
+
 
 
 /* WHISPER TO RECIEVER– receives the chat messages*/
@@ -78,6 +114,7 @@ Background Functions
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
          document.getElementById("chatlog").appendChild(document.createTextNode('<private> => '+data['user'] + ': ' + data['message']));
       });
+
 
 
 
@@ -112,6 +149,7 @@ Action Functions
             socketio.emit('new_user', name, function(data){
                if(data){
                   console.log(name + " added");
+
                   $('#userInBox').hide();
                   $('#content').show();
                }
@@ -185,6 +223,7 @@ Listeners
          <div id= "chatBox">
             <input type=text id="message_input"/>
             <button onclick="sendMessage()">Send</button>
+            <input type=checkbox id="bold"/>Emphasis
 
             <form name="output">
                <select name="sendTo" id="location" size="1">

@@ -53,13 +53,16 @@ io.sockets.on("connection", function(socket){
 			//add to users
 			users[socket.username] = socket;
 
+			//notifies chatroom of new member
+			io.sockets.emit("user_entered", {message:data["message"], user: socket.username });
+
 			//emits updated user list
 			updateUsers();
 
 			
 		}
 		
-	}
+	})
 
 	socket.on('message_to_server', function(data) {
 		// This callback runs when the server receives a new message from the client.
@@ -92,6 +95,12 @@ io.sockets.on("connection", function(socket){
 
 		//remove user from current list of users – Followed Online
 		delete users[socket.username];
+
+		
+		console.log("User left");
+
+		//notifies chat room of leaving
+		io.sockets.emit("user_left", {message:data["message"], user: socket.username })
 
 		updateUsers();
 	})
