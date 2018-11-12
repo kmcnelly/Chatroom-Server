@@ -29,9 +29,14 @@
             overflow: scroll;
          }
 
-         #usersBox{
+         #rightSide{
             float: right;
-
+         }
+         #usersBox{
+            border: 1px #000 solid;
+         }
+         /*list of rooms and room options*/
+         #roomBox{
             border: 1px #000 solid;
          }
 
@@ -130,6 +135,25 @@ Background Functions
       var userString = '';
       for(i=0; i < data.length; i++){
          userString += data[i] + '<br/>'
+      }
+      
+      console.log(userString);
+      document.getElementById("usersList").innerHTML = userString;
+
+      //update sendTo List
+      document.output.sendTo.options.length = 1;
+
+      var sendTo =document.output.sendTo
+      for (i=0; i < data.length; i++){
+          sendTo.options[sendTo.options.length]=new Option(data[i], data[i], false, false);
+      }
+   });
+
+/*Get Rooms–  Recieves updated ROOMS list and displays current chatrooms.*/
+   socketio.on('getRooms', function(data){
+      var roomString = '';
+      for(i=0; i < data.length; i++){
+         roomString += data[i] + '<br/>'
       }
       
       console.log(userString);
@@ -254,10 +278,25 @@ Listeners
          </div>
 
 <!-- Display current users in room -->
-         <div id= "usersBox">
-            <p><i>Welcome, <span id="myName"></span></i></p>
-            <p><u>Users</u>:</p>
-            <p id="usersList"></p>
+         <div id="rightSide">
+            <div id= "usersBox">
+               <p><i>Welcome, <span id="myName"></span></i></p>
+               <p><u>Users</u>:</p>
+               <p id="usersList"></p>
+            </div>
+            <div id = "roomBox">
+               <!-- Rooom selector -->
+               <form name="space">
+                  <select name="room" id="rooms" size="1">
+                     <option value="general">General</option>
+                  </select>
+                  <input type="submit">
+               </form>
+
+               <!-- List of rooms -->
+               <p><u>Rooms:</u>:</p>
+               <p id="roomList"></p>
+            </div>
          </div>
 
       </div>

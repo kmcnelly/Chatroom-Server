@@ -81,6 +81,7 @@ io.sockets.on("connection", function(socket){
 			users[socket.username].emit("whisperFrom", {message:data["message"], user:sendTo });
 		}
 		else{
+			//to ALL
 			console.log("message: "+data["message"]); // log it to the Node.JS output
 
 			io.sockets.emit("message_to_client", {message:data["message"], user: socket.username }) // broadcast the message to other users
