@@ -231,7 +231,7 @@ Room Helper Functions
 //generates a new room and adds it to the list
 //while you can join a room that doesn't exist by calling join and a new name, we want to have
 //some order in this otherwise lawless chat service so you're stuck creating rooms and joining them from a list
-function createPrivateRoom(){
+      function createPrivateRoom(){
             var room = document.getElementById("roomname").value;
             var password = document.getElementById("password").value;
             if(password == null){
@@ -245,9 +245,10 @@ function createPrivateRoom(){
             var e = document.getElementById("room");
             var room = e.options[e.selectedIndex].value;
             var password = document.getElementById("password").value;
+            socketio.emit("leave",{room: croom});
             socketio.emit("join",{room: room, password: password});
       }
-      
+
 /* ============================================================================
 Listeners
 ==============================================================================*/
