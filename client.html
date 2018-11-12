@@ -26,7 +26,6 @@
          #usersBox{
             float: right;
 
-            height: 100px;
             border: 1px #000 solid;
          }
 
@@ -48,7 +47,7 @@ Background Functions
 ==============================================================================*/
 
 
-/*Get Message – receives the chat messages*/
+/*Get MESSAGE – receives the chat messages*/
       socketio.on("message_to_client",function(data) {
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
@@ -66,6 +65,21 @@ Background Functions
       });
 
 
+/* WHISPER TO RECIEVER– receives the chat messages*/
+      socketio.on("whisperTo",function(data) {
+         //Append an HR thematic break and the escaped HTML of the new message
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+         document.getElementById("chatlog").appendChild(document.createTextNode('<private> '+data['user'] + ': ' + data['message']));
+      });
+
+/* WHISPER FROM SENDER– receives the chat messages*/
+      socketio.on("whisperFrom",function(data) {
+         //Append an HR thematic break and the escaped HTML of the new message
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+         document.getElementById("chatlog").appendChild(document.createTextNode('<private> => '+data['user'] + ': ' + data['message']));
+      });
+
+
 
 /*Get Users– Recieves updated user list and displays current users in chat room.
    data – the array of users */
@@ -77,6 +91,14 @@ Background Functions
       
       console.log(userString);
       document.getElementById("usersList").innerHTML = userString;
+
+      //update sendTo List
+      document.output.sendTo.options.length = 1;
+
+      var sendTo =document.output.sendTo
+      for (i=0; i < data.length; i++){
+          sendTo.options[sendTo.options.length]=new Option(data[i], data[i], false, false);
+      }
    });
 
 /* ============================================================================
@@ -106,10 +128,14 @@ Action Functions
 
 // Send Message
       function sendMessage(){
+         //message
          var msg = document.getElementById("message_input").value;
 
+         //who is the message going to
+         var loc = document.getElementById("location").value;
+
          if(msg != ""){
-            socketio.emit("message_to_server", {message:msg});
+            socketio.emit("message_to_server", {message:msg, sendTo:loc});
          }
 
          document.getElementById("message_input").value = "";
@@ -159,6 +185,12 @@ Listeners
          <div id= "chatBox">
             <input type=text id="message_input"/>
             <button onclick="sendMessage()">Send</button>
+
+            <form name="output">
+               <select name="sendTo" id="location" size="1">
+                  <option value="all">All</option>
+               </select>
+            </form>
 
             <div id="chatlog"> 
             </div>
