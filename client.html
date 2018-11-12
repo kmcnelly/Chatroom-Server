@@ -26,6 +26,7 @@
          #chatlog{
             height:600px;
             border: 1px #000 solid;
+            overflow: scroll;
          }
 
          #usersBox{
@@ -151,19 +152,28 @@ Action Functions
          var name = document.getElementById("newUser_input").value;
 
          if(name != ""){
-            socketio.emit('new_user', name, function(data){
-               if(data){
-                  console.log(name + " added");
+            //check length of username
+            if(name.length < 16){
 
-                  $('#userInBox').hide();
-                  $('#content').show();
+               //send to server
+               socketio.emit('new_user', name, function(data){
+                  if(data){
+                     console.log(name + " added");
 
-                  document.getElementById("myName").innerHTML = name;
-               }
-               else{
-                  alert("Invalid Username. Try another!");
-               }
-            });
+                     $('#userInBox').hide();
+                     $('#content').show();
+
+                     document.getElementById("myName").innerHTML = name;
+                  }
+                  else{
+                     alert("Invalid Username. Try another!");
+                  }
+               });
+            }
+            else{
+               alert("Username too long. Try another!");
+            }
+            
          }
 
          //reset the text box
