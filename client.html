@@ -212,15 +212,42 @@ Action Functions
 
          //who is the message going to
          var loc = document.getElementById("location").value;
-
          if(msg != ""){
+            if(loc == "all"){
+            var e = document.getElementById("room");
+            var room = e.options[e.selectedIndex].text;
+            socketio.emit("message_to_server", {message:msg, room: room});
+         }
+         else{
             socketio.emit("message_to_server", {message:msg, sendTo:loc});
          }
-
-         document.getElementById("message_input").value = "";
-
       }
-
+         document.getElementById("message_input").value = "";
+      
+      }
+/* ============================================================================
+Room Helper Functions
+==============================================================================*/
+//generates a new room and adds it to the list
+//while you can join a room that doesn't exist by calling join and a new name, we want to have
+//some order in this otherwise lawless chat service so you're stuck creating rooms and joining them from a list
+function createPrivateRoom(){
+            var room = document.getElementById("roomname").value;
+            var password = document.getElementById("password").value;
+            if(password == null){
+                  password = '';
+            }
+            socketio.emit("createroom",{room:room, password: password});
+      }
+//joins an existing room
+//see above for why we restricted it
+      function joinRoom(){
+            var e = document.getElementById("room");
+            var room = e.options[e.selectedIndex].value;
+            var password = document.getElementById("password").value;
+            socketio.emit("join",{room: room, password: password});
+      }
+      
 /* ============================================================================
 Listeners
 ==============================================================================*/
@@ -294,8 +321,15 @@ Listeners
                </form>
 
                <!-- List of rooms -->
-               <p><u>Rooms:</u>:</p>
+               <p><u>Rooms</u>:</p>
                <p id="roomList"></p>
+            </div>
+            <div id ="trashBox">
+                  <p><b>Create New Room:</b></p>
+                  <p>New room name: <input type ="text" id="roomname"/></p>
+                  <p>New password (optional): <input type = "password" id="password"/></p>
+                  <p><button onclick="createPrivateRoom()">Create new Private Room</button></p>
+                  
             </div>
          </div>
 
