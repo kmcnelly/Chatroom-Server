@@ -31,9 +31,9 @@
             function sendMessage(){
                   var e = document.getElementById("room");
                   var room = e.options[e.selectedIndex].text;
-                  var msg = document.getElementById("message_input").value;
                   console.log(room);
-                  socketio.emit("message_to_server", {message:msg}, room);
+                  var msg = document.getElementById("message_input").value;
+                  socketio.emit("message_to_server", {message:msg, room: room});
                   }
             //
             function createPrivateRoom(){
@@ -48,8 +48,9 @@
             function joinRoom(){
                   var e = document.getElementById("room");
                   var room = e.options[e.selectedIndex].value;
-                  // var room = document.getElementById("room").value;
-                  socketio.emit("join",room);
+                  var password = document.getElementById("password").value;
+                  console.log(password);
+                  socketio.emit("join",{room: room, password: password});
                   // socketio.emit("join",{room: room, password: password});
                   }
             function listRooms(){
