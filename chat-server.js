@@ -2,9 +2,10 @@
 var http = require("http"),
 	socketio = require("socket.io"),
 	fs = require("fs");
-
+	bcrypt = require("bcrypt");
 //object users – Key: the usernames, values are the sockets
 var users = {};
+var rooms ={};
 
 
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
