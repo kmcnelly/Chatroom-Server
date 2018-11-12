@@ -5,13 +5,18 @@
       <!-- <link rel="stylesheet" href="style.css"> -->
       <style type="text/css">
 
-      /*Keep content hidden before user logs in*/
+         h1{
+            border: 1px #000 solid;
+         }
+
+         /*Login Box*/
          #userInBox{
             float: left;
 
             height: 100px;
             border: 1px #000 solid;
          }
+         /*Keep content hidden before user logs in*/
          #content{
             display: none;
          }
@@ -152,6 +157,8 @@ Action Functions
 
                   $('#userInBox').hide();
                   $('#content').show();
+
+                  document.getElementById("myName").innerHTML = name;
                }
                else{
                   alert("Invalid Username. Try another!");
@@ -199,9 +206,9 @@ Listeners
 
 
       </script>
-<!-- ======================================================================================== -->
+<!-- ========================================================================================================================= -->
 <!-- HTML -->
-<!-- ======================================================================================== -->
+<!-- ========================================================================================================================= -->
 
    </head>
 
@@ -238,7 +245,8 @@ Listeners
 
 <!-- Display current users in room -->
          <div id= "usersBox">
-            <p>Users:</p>
+            <p><i>Welcome, <span id="myName"></span></i></p>
+            <p><u>Users</u>:</p>
             <p id="usersList"></p>
          </div>
 
