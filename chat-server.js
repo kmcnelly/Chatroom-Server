@@ -5,8 +5,20 @@ var http = require("http"),
 	bcrypt = require("bcrypt");
 //object users – Key: the usernames, values are the sockets
 var users = {};
-var rooms ={};
-
+//array for rooms [name, password (hashed with bcrypt)]
+var rooms = [];
+//helper to iterate through the rooms if it exists
+function roomLoop(array, item){
+	for (var i = 0; i < array.length; i++) {
+		if(array[i][0] == item){
+			return array[i][1];
+		}
+		else{
+			return false;
+		}
+	}
+	return "no";
+}
 
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp){
@@ -27,6 +39,22 @@ var io = socketio.listen(app);
 
 io.sockets.on("connection", function(socket){
  
+	//runs when trying to join a room
+	socket.on('join', function(data) {
+		var password = roomLoop(rooms,data['room']);
+		if(!password){
+			socket.emit("message_to_client",{message: "room doesn't exist"});
+		}
+		// console.log(password);
+		var res = bcrypt.compareSync(data['password'],password);
+		if(res){
+			socket.join(data['room']);
+		}
+		else{
+			socket.emit("message_to_client",{message: "wrong password nerd"});
+		}
+		
+	});
 	// This callback runs when a new Socket.IO connection is established.
 
 	//emits updated user list
@@ -64,6 +92,21 @@ io.sockets.on("connection", function(socket){
 		}
 		
 	})
+	socket.on('createroom', function(data){
+		var xizt = roomloop(rooms, data['room']);
+		if(xizt == "no"){
+			socket.emit("message_to_client",{message: "room already exists"});
+		}
+		else{
+		var i = rooms.length;
+		var pass = data['password'];
+		var password = bcrypt.hashSync(pass, 10);
+		rooms[i] = [data['room'],password];
+		console.log(password);
+		io.emit("newroom",{name: data['room']});
+		}
+	});
+	
 
 	socket.on('message_to_server', function(data) {
 		// This callback runs when the server receives a new message from the client.
