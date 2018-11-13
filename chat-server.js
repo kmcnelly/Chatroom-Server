@@ -2,7 +2,7 @@
 var http = require("http"),
 	socketio = require("socket.io"),
 	fs = require("fs");
-	bcrypt = require("bcrypt");
+	// bcrypt = require("bcrypt");
 //object users – Key: the usernames, values are the sockets
 var users = {};
 //array for rooms [name, password (hashed with bcrypt)]
@@ -40,21 +40,21 @@ var io = socketio.listen(app);
 io.sockets.on("connection", function(socket){
  
 	//runs when trying to join a room
-	socket.on('join', function(data) {
-		var password = roomLoop(rooms,data['room']);
-		if(!password){
-			socket.emit("message_to_client",{message: "room doesn't exist"});
-		}
-		// console.log(password);
-		var res = bcrypt.compareSync(data['password'],password);
-		if(res){
-			socket.join(data['room']);
-		}
-		else{
-			socket.emit("message_to_client",{message: "wrong password nerd"});
-		}
+	// socket.on('join', function(data) {
+	// 	var password = roomLoop(rooms,data['room']);
+	// 	if(!password){
+	// 		socket.emit("message_to_client",{message: "room doesn't exist"});
+	// 	}
+	// 	// console.log(password);
+	// 	var res = bcrypt.compareSync(data['password'],password);
+	// 	if(res){
+	// 		socket.join(data['room']);
+	// 	}
+	// 	else{
+	// 		socket.emit("message_to_client",{message: "wrong password nerd"});
+	// 	}
 		
-	});
+	// });
 	// This callback runs when a new Socket.IO connection is established.
 
 	//emits updated user list
