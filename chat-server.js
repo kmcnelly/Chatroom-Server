@@ -205,7 +205,7 @@ io.sockets.on("connection", function(socket){
 		updateUsers();
 	});
 
-
+	// listen for being kicked out
 	socket.on('kick', function(data) {
 		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
@@ -218,10 +218,10 @@ io.sockets.on("connection", function(socket){
 			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
 			socket.emit("kicked");
 		} 
-	else{
-		socket.emit("message_to_client",{message: "insufficient privileges"});
-	}
-	  });
+		else{
+			socket.emit("message_to_client",{message: "insufficient privileges", user:'Chat Error'});
+		}
+	 });
 	socket.on('ban', function(data){
 		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
 			socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
