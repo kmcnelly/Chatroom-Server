@@ -124,6 +124,7 @@ io.sockets.on("connection", function(socket){
 		
 		var sendTo = data["sendTo"];
 
+		//find user in list of users
 		if(sendTo in users){
 			//WHISPER
 
@@ -139,7 +140,7 @@ io.sockets.on("connection", function(socket){
 			//to ALL
 			console.log("message: "+data["message"]); // log it to the Node.JS output
 
-			io.sockets.emit("message_to_client", {message:data["message"], user: socket.usernam, bold:data["bold"] }) // broadcast the message to other users
+			io.sockets.emit("message_to_client", {message:data["message"], user: socket.username, bold:data["bold"] }) // broadcast the message to other users
 		}
 	});
 
