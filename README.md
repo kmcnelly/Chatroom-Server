@@ -3,7 +3,17 @@ Module 5 – Calendar
 Alex Chow - 457332
 Kenneth McNelly – 457250
 
-Link:
+Notice:
+Non-private Rooms have a password of "" (nothing)
+
+User may create a room named "" (nothing)
+
+
+Packages Used:
+-Socket.io
+-JQuery
+-Bcrypt
+
 
 
 Citations:
@@ -21,6 +31,8 @@ Creative Portion:
 	-Sharing Image media, can send png,gif,jpeg...
 		-room sensitive
 
+	-Encripted Passwords for rooms with bcrypt
+
     -Emphasis 
     	-users may select the option for their message to be shown in bold
 
@@ -29,7 +41,7 @@ Creative Portion:
 
     	-those in specific room notified when user enters and leaves the room
 
-    -Wrapping text
+    -Wrapping text in
 
     -Username max character limit @ 16 characters
 
