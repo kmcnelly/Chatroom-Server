@@ -10,7 +10,9 @@
          h1{
             border: 1px #000 solid;
          }
-
+         h2{
+            content: "% ";
+         }
          /*Login Box*/
          #userInBox{
             float: left;
@@ -289,6 +291,11 @@ Room Helper Functions
                document.getElementById("header").innerHTML = room;
             }
       }
+      function kick(){
+         var sucker = document.getElementById('tokick').value;
+         var room = document.getElementById("header").innerHTML;
+         socketio.emit("kick", {user: sucker, room: room});
+      }
 //whenever a new room is created it appends the new room to the selector
       socketio.on("newroom",function(data){
             var select = document.getElementById("rooms"); 
@@ -298,6 +305,14 @@ Room Helper Functions
             el.value = opt;
             select.appendChild(el);
       });
+/* ============================================================================
+The Long Banhammer of the Law
+==============================================================================*/
+      socketio.on('kicked', function(){
+         socketio.emit("join",{room: 'general'});
+         document.getElementById("header").innerHTML = 'general';
+      })
+
 /* ============================================================================
 JQUERY Listeners
 ==============================================================================*/
@@ -377,7 +392,8 @@ JQUERY Listeners
                   <p>New room name: <input type ="text" id="roomname"/></p>
                   <p>New password (optional): <input type = "password" id="password"/></p>
                   <p><button onclick="createPrivateRoom()">Create new room</button></p>
-                  
+                  <p><input type = "text" id = "tokick"></p>
+                  <p><button onclick="kick()">Kick</button></p>
             </div>
          </div>
 

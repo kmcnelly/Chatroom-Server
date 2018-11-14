@@ -53,7 +53,8 @@ io.sockets.on("connection", function(socket){
 
 	for(var i = 0; i < rooms.length; i++){
 		var name = rooms[i][0];
-		socket.to(socket.username).emit("newroom",{name: name});
+		// socket.to(socket.username).emit("newroom",{name: name});
+		socket.emit("newroom",{name: name});
 	}
 
 
@@ -149,7 +150,7 @@ io.sockets.on("connection", function(socket){
 		console.log(xizt);
 		if(xizt == false){
 			var pass = data['password'];
-			var password = bcrypt.hashSync(pass, 10);
+			var password = bcrypt.hashSync(pass, 10);	
 			console.log(password);
 			rooms.push([data['room'],password,socket.username]);
 			io.emit("newroom",{name: data['room']});
@@ -206,15 +207,17 @@ io.sockets.on("connection", function(socket){
 
 
 	socket.on('kick', function(data) {
+		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
+		console.log(maker);
 		if(maker = socket.username){
-		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
-		  socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
-		  io.sockets.sockets[users[socket]].disconnect();
-		} else {
-		  socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
-		}
-	}
+			console.log(users[sucker].id);
+			socket = io.sockets.connected[users[sucker].id];
+			console.log(data['room']);
+			socket.leave(data['room']);
+			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
+			socket.emit("kicked");
+		} 
 	else{
 		socket.emit("message_to_client",{message: "insufficient privileges"});
 	}
