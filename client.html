@@ -29,6 +29,7 @@
          }
          #chatlog{
             height:600px;
+            width:800px;
             border: 1px #000 solid;
             overflow: scroll;
          }
@@ -95,7 +96,7 @@ Background Functions
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
 
-         var newUser = '*' + data['user'] + ' has joined ';
+         var newUser = '*' + data['user'] + ' has joined ' + data['message'];
 
          document.getElementById("chatlog").appendChild(italicsHTML(newUser));
       });
@@ -107,7 +108,7 @@ Background Functions
          //Append an HR thematic break and the escaped HTML of the new message
          document.getElementById("chatlog").appendChild(document.createElement("hr"));
 
-         var oldUser = '*' + data['user'] + ' disconnected';
+         var oldUser = '*' + data['user'] + " disconnected from " + data['message'];
 
          document.getElementById("chatlog").appendChild(italicsHTML(oldUser));
       });
@@ -230,6 +231,7 @@ Action Functions
          //message
          var msg = document.getElementById("message_input").value;
 
+
          //who is the message going to
          var loc = document.getElementById("location").value;
          if(msg != ""){
@@ -264,23 +266,29 @@ Room Helper Functions
                   password = '';
             }
             socketio.emit("createroom",{room:room, password: password});
+
+            document.getElementById("roomname").value = "";
       }
 //joins an existing room
 //see above for why we restricted it
       function joinRoom(){
             var e = document.getElementById("rooms");
             var room = e.options[e.selectedIndex].value;
-            var croom = document.getElementById("header").innerHTML;
+            var croom = document.getElementById("header").innerHTML; //current room
+
             console.log(croom);
+
             var password = document.getElementById("pass").value;
+
+            //safety net
             if(croom == null){
                socketio.emit("join",{room: room, password: password});
                document.getElementById("header").innerHTML = room;
             }
             else{
-            socketio.emit("leave",{room: croom});
-            socketio.emit("join",{room: room, password: password});
-            document.getElementById("header").innerHTML = room;
+               socketio.emit("leave",{room: croom});
+               socketio.emit("join",{room: room, password: password});
+               document.getElementById("header").innerHTML = room;
             }
       }
       function kick(){
@@ -306,7 +314,7 @@ The Long Banhammer of the Law
       })
 
 /* ============================================================================
-Listeners
+JQUERY Listeners
 ==============================================================================*/
       //return key for sending message
       $('#sendMs').click(function(){
@@ -321,6 +329,8 @@ Listeners
               sendMessage();   
          }
       });
+
+      $('#chatlog').wrap("<div></div>");
 
 
       </script>

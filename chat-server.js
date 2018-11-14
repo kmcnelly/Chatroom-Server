@@ -45,36 +45,61 @@ app.listen(3456);
 var io = socketio.listen(app);
 
 io.sockets.on("connection", function(socket){
-	//prints the list of existing rooms to the dropdown.
+
+	//join general by default
 	socket.join('general');
+	socket.room = 'general';
+	//prints the list of existing rooms to the dropdown.
+
 	for(var i = 0; i < rooms.length; i++){
 		var name = rooms[i][0];
 		// socket.to(socket.username).emit("newroom",{name: name});
 		socket.emit("newroom",{name: name});
 	}
+
+
 	// runs when trying to join a room
 	socket.on('join', function(data) {
 		console.log(data['room']);
+
+		//check room to join
+			//if joining general
 		if(data['room'] == 'general'){
 			socket.join('general');
+			socket.room = 'general';
 		}
+			//joining other
 		else{
-		//password is just the variable name, this just stores the value of roomLoop
-		var password = roomLoop(rooms,data['room']);
-		if(!password){
-			socket.emit("message_to_client",{message: "room doesn't exist", user:'Chat Error'});
+			var password = roomLoop(rooms,data['room']);
+			if(!password){
+				socket.emit("message_to_client",{message: "room doesn't exist", user:'Chat Error'});
+			}
+			console.log(password);
+
+			//Password result
+			var res = bcrypt.compareSync(data['password'],password);
+
+			//enter room or not
+			if(res){
+
+				socket.join(data['room']);
+
+				socket.room = data['room'];
+
+				//notifies chatroom of new member
+				io.sockets.to(socket.room).emit("user_entered", {message:socket.room, user: socket.username });
+			}
+			else{
+				socket.emit("message_to_client",{message: "wrong password", user:'Chat Error'});
+			}
 		}
-		console.log(password);
-		var res = bcrypt.compareSync(data['password'],password);
-		if(res){
-			socket.join(data['room']);
-		}
-		else{
-			socket.emit("message_to_client",{message: "wrong password", user:'Chat Error'});
-		}
-	}
 	});
+
+	//leaving room
 	socket.on('leave', function(data){
+
+		io.sockets.to(socket.room).emit("user_left", {message:socket.room, user: socket.username });
+
 		socket.leave(data['room']);
 	});
 	// This callback runs when a new Socket.IO connection is established.
@@ -111,7 +136,7 @@ io.sockets.on("connection", function(socket){
 			users[socket.username] = socket;
 
 			//notifies chatroom of new member
-			io.sockets.emit("user_entered", {message:data["message"], user: socket.username });
+			io.sockets.emit("user_entered", {message:"akIRC", user: socket.username });
 
 			//emits updated user list
 			updateUsers();
@@ -161,6 +186,7 @@ io.sockets.on("connection", function(socket){
 		}
 	});
 
+	//user disconnecting from chat
 	socket.on('disconnect', function(data){
 		//if user did not enter the actual chat
 		if(!socket.username){
@@ -171,13 +197,15 @@ io.sockets.on("connection", function(socket){
 		delete users[socket.username];
 
 		
-		console.log("User left");
+		console.log(socket.username +" left");
 
 		//notifies chat room of leaving
-		io.sockets.emit("user_left", {message:data["message"], user: socket.username })
+		io.sockets.emit("user_left", {message:"akIRC", user: socket.username })
 
 		updateUsers();
 	});
+
+
 	socket.on('kick', function(data) {
 		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
