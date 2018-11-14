@@ -70,8 +70,6 @@ io.sockets.on("connection", function(socket){
 
 	// runs when trying to join a room
 	socket.on('join', function(data) {
-		console.log(data['room']);
-
 		//check room to join
 			//if joining general
 		if(data['room'] == 'general'){
@@ -79,6 +77,14 @@ io.sockets.on("connection", function(socket){
 			socket.room = 'general';
 		}
 			//joining other
+		else{
+			var where = rusersHelper.indexOf(data['room']);
+		console.log(where);
+		console.log(bans[where]);
+		if(bans[where].includes(socket.username)){
+			socket.emit("message_to_client",{message: "you are banned!", user:'Admin'});
+			socket.emit("banned",{room: data['room']});
+		}
 		else{
 			var password = roomLoop(rooms,data['room']);
 			if(!password){
@@ -105,17 +111,17 @@ io.sockets.on("connection", function(socket){
 				socket.emit("message_to_client",{message: "wrong password", user:'Chat Error'});
 			}
 		}
+	}
 	});
 
 	//leaving room
 	socket.on('leave', function(data){
+		var newUsers = [];
 		var where = rusersHelper.indexOf(data['room']); //finds where in the array the room is
 		var here = findUser(rusers, socket.username, where); //finds where in the room the user joined
-		console.log(rusers[where]);
-		rusers[where].splice[here,1];
-		console.log(rusers);
+		// console.log(rusers[where][here]);
+		newUsers = rusers[where].splice(here,1);
 		io.sockets.to(socket.room).emit("user_left", {message:socket.room, user: socket.username });
-
 		socket.leave(data['room']);
 	});
 	socket.on('leaveGeneral', function(data){
@@ -135,11 +141,7 @@ io.sockets.on("connection", function(socket){
 	//new user entered 
 	socket.on('new_user', function(data, callback){
 		//Check if user is banned
-		if(bans.includes(data)){
-			callback(false);
 
-			console.log("User is banned");
-		}
 		// Check if username is already present
 		 if(data in users){
 			callback(false);
@@ -176,6 +178,7 @@ io.sockets.on("connection", function(socket){
 			rooms.push([data['room'],password,socket.username]);
 			rusers.push([data['room']]);
 			rusersHelper.push(data['room']);
+			bans.push([data['room']]);
 			io.emit("newroom",{name: data['room']});
 		}
 		else{
@@ -258,19 +261,18 @@ io.sockets.on("connection", function(socket){
 		// console.log(maker);
 		if(maker == socket.username){
 			var where = rusersHelper.indexOf(data['room']);
-			console.log(where); //finds where in the array the room is
+			// console.log(where); //finds where in the array the room is
 			var here = findUser(rusers, data['user'], where);
-			console.log(here);
+			// console.log(here);
 			if(findUser(rusers, data['user'], where) == false){
 				socket.emit("message_to_client",{message: "user not found in room", user:'Admin'});
 			}
 			else{
-			// console.log(users[sucker].id);
-			socket = io.sockets.connected[users[sucker].id];
+			sucker = io.sockets.connected[users[sucker].id];
+			// console.log('--');
 			// console.log(data['room']);
-			socket.leave(data['room']);
-			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
-			socket.emit("kicked");
+			sucker.emit("message_to_client",{message: "You have been kicked.", user:'Admin'});
+			sucker.emit("kicked", {room: data['room']});
 			}
 		}
 		else{
@@ -279,21 +281,31 @@ io.sockets.on("connection", function(socket){
 	  });
 	socket.on('ban', function(data) {
 		var sucker = data['user'];
-		var room = data['room'];
-		bans.push([room,sucker])
-		var maker = findCreator(rooms,room);
+		var maker = findCreator(rooms,data['room']);
 		// console.log(maker);
 		if(maker == socket.username){
-			// console.log(users[sucker].id);
-			socket = io.sockets.connected[users[sucker].id];
+			var where = rusersHelper.indexOf(data['room']);
+			// console.log('-----'); //finds where in the array the room is
+			// // var here = findUser(rusers, data['user'], where);
+			// console.log(bans[where]);
+			bans[where].push(sucker);
+			// console.log('-----');
+			// console.log(bans);
+			// console.log(here);
+			if(findUser(rusers, data['user'], where) == false){
+				socket.emit("message_to_client",{message: "user not found in room", user:'Admin'});
+			}
+			else{
+			sucker = io.sockets.connected[users[sucker].id];
+			// console.log('--');
 			// console.log(data['room']);
-			socket.leave(room);
-			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
-			socket.emit("kicked");
+			sucker.emit("message_to_client",{message: "You have been banned.", user:'Admin'});
+			sucker.emit("kicked", {room: data['room']});
+			}
 		}
-	else{
-		socket.emit("message_to_client",{message: "insufficient privileges"});
-	}
+		else{
+		socket.emit("message_to_client",{message: "insufficient privileges", user:'Admin'});
+		}
 	  });
 });
 
