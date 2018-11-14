@@ -12,10 +12,24 @@ Citations:
 	Author Smitha Milli
 [private messaging follows a more challenging approach than taught.]
 
+-Image reading
+	Link: https://stackoverflow.com/questions/34850386/socket-io-chat-app-that-can-also-send-image-and-even-file
+	Author: Arch1tect on Github
+Adapted for own chatroom
 
 Creative Portion: 
+	-Sharing Image media, can send png,gif,jpeg...
+		-room sensitive
+
     -Emphasis 
     	-users may select the option for their message to be shown in bold
 
     -Join/Disconnect notifiction
-    	-chat is notified when a user joins or leaves
+    	-All in Chat notified when a user joins/disconnects from the webpage
+
+    	-those in specific room notified when user enters and leaves the room
+
+    -Wrapping text
+
+    -Username max character limit @ 16 characters
+

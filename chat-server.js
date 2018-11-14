@@ -183,12 +183,17 @@ io.sockets.on("connection", function(socket){
 		}
 	});
 	
-
+//message from user
 	socket.on('message_to_server', function(data) {
 		// This callback runs when the server receives a new message from the client.
 		
 		var sendTo = data["sendTo"];
 		var room = data['room'];
+
+		var img = data['image'];
+		console.log("recieved image");
+
+
 		//find user in list of users
 		if(sendTo in users){
 			//WHISPER
@@ -206,7 +211,25 @@ io.sockets.on("connection", function(socket){
 			console.log("message: "+data["message"]); // log it to the Node.JS output
 
 			io.sockets.to(room).emit("message_to_client", {message:data["message"], user: socket.username, bold:data["bold"] }) // broadcast the message to other users
+			
 		}
+	});
+
+//image from user
+	socket.on('image_to_server', function(data) {
+		// This callback runs when the server receives a new message from the client.
+		
+		var room = data['room'];
+
+		var img = data['image'];
+		console.log("recieved image");
+
+		
+		//to ALL
+		console.log("message: "+data["message"]); // log it to the Node.JS output
+
+		io.sockets.to(room).emit("image_to_client", {message:data["message"], user: socket.username, image:img }) // broadcast the message to other users
+		
 	});
 
 	//user disconnecting from chat
@@ -228,7 +251,7 @@ io.sockets.on("connection", function(socket){
 		updateUsers();
 	});
 
-
+	// listen for being kicked out
 	socket.on('kick', function(data) {
 		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
