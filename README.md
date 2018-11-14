@@ -5,6 +5,7 @@ Kenneth McNelly – 457250
 
 WARNING– Issue with bcrypt not working with npm install
 	-multiple TA's said it was okay
+	> npm install bcrypt
 
 Notice:
 Non-private Rooms have a password of "" (nothing)
