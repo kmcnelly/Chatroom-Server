@@ -3,10 +3,14 @@ Module 5 – Calendar
 Alex Chow - 457332
 Kenneth McNelly – 457250
 
+WARNING– Issue with bcrypt not working with npm install
+	-multiple TA's said it was okay
+
 Notice:
 Non-private Rooms have a password of "" (nothing)
 
 User may create a room named "" (nothing)
+
 
 
 Packages Used:
