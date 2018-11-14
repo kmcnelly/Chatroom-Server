@@ -49,7 +49,8 @@ io.sockets.on("connection", function(socket){
 	socket.join('general');
 	for(var i = 0; i < rooms.length; i++){
 		var name = rooms[i][0];
-		socket.to(socket.username).emit("newroom",{name: name});
+		// socket.to(socket.username).emit("newroom",{name: name});
+		socket.emit("newroom",{name: name});
 	}
 	// runs when trying to join a room
 	socket.on('join', function(data) {
@@ -58,6 +59,7 @@ io.sockets.on("connection", function(socket){
 			socket.join('general');
 		}
 		else{
+		//password is just the variable name, this just stores the value of roomLoop
 		var password = roomLoop(rooms,data['room']);
 		if(!password){
 			socket.emit("message_to_client",{message: "room doesn't exist"});
@@ -123,7 +125,7 @@ io.sockets.on("connection", function(socket){
 		console.log(xizt);
 		if(xizt == false){
 			var pass = data['password'];
-			var password = bcrypt.hashSync(pass, 10);
+			var password = bcrypt.hashSync(pass, 10);	
 			console.log(password);
 			rooms.push([data['room'],password,socket.username]);
 			io.emit("newroom",{name: data['room']});
@@ -177,15 +179,14 @@ io.sockets.on("connection", function(socket){
 		updateUsers();
 	});
 	socket.on('kick', function(data) {
+		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
+		console.log(maker);
 		if(maker = socket.username){
-		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
-		  socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
-		  io.sockets.sockets[users[socket]].disconnect();
-		} else {
-		  socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
-		}
-	}
+			console.log(users[sucker].id);
+			socket = io.sockets.connected[users[sucker].id];
+			socket.leave(data['room']);
+		} 
 	else{
 		socket.emit("message_to_client",{message: "insufficient privileges"});
 	}

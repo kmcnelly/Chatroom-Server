@@ -10,7 +10,9 @@
          h1{
             border: 1px #000 solid;
          }
-
+         h2{
+            content: "% ";
+         }
          /*Login Box*/
          #userInBox{
             float: left;
@@ -281,6 +283,10 @@ Room Helper Functions
             document.getElementById("header").innerHTML = room;
             }
       }
+      function kick(){
+         var sucker = document.getElementById('tokick').value;
+         socketio.emit("kick", {user: sucker});
+      }
 //whenever a new room is created it appends the new room to the selector
       socketio.on("newroom",function(data){
             var select = document.getElementById("rooms"); 
@@ -367,7 +373,8 @@ Listeners
                   <p>New room name: <input type ="text" id="roomname"/></p>
                   <p>New password (optional): <input type = "password" id="password"/></p>
                   <p><button onclick="createPrivateRoom()">Create new room</button></p>
-                  
+                  <p><input type = "text" id = "tokick"></p>
+                  <p><button onclick="kick()">Kick</button></p>
             </div>
          </div>
 
