@@ -2,7 +2,6 @@
 <html>
    <head>
       <!-- Style Sheet -->
-      <!-- <link rel="stylesheet" href="style.css"> -->
       <style type="text/css">
          body{
             font-family: 'Courier New';
@@ -55,7 +54,17 @@
 
      <!-- Socket.io -->
       <script src="/socket.io/socket.io.js"></script>
-      <script type ="text/javascript">
+   
+   <!-- ====================================================================================================
+   =========================================================================================================
+   =========================================================================================================
+   
+   Java Script
+
+   =======================================================================================================
+   =======================================================================================================
+   ===================================================================================================-->
+   <script type ="text/javascript">
 
       var socketio = io.connect();
 /* ============================================================================
@@ -88,6 +97,32 @@ Background Functions
          else{
             document.getElementById("chatlog").appendChild(document.createTextNode(data['user'] + ': ' + data['message']));
          }
+         
+      });
+
+/*Get MESSAGE – receives the chat messages*/
+      socketio.on("image_to_client",function(data) {
+         //Append an HR thematic break and the escaped HTML of the new message
+         
+
+         if(data['message'] != ""){
+            document.getElementById("chatlog").appendChild(document.createElement("hr"));
+
+            document.getElementById("chatlog").appendChild(document.createTextNode(data['user'] + ': ' + data['message']));
+         }
+
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+
+
+         var output = document.createElement("img");
+         output.src = data['image'];
+
+         document.getElementById("chatlog").appendChild(output);
+         
+         // var output = document.getElementById('output');
+         // output.src = data['image'];
+
+         // alert(data['image']);
          
       });
 
@@ -231,6 +266,7 @@ Action Functions
          //message
          var msg = document.getElementById("message_input").value;
 
+         var img = document.getElementById("image_input");
 
          //who is the message going to
          var loc = document.getElementById("location").value;
@@ -249,9 +285,9 @@ Action Functions
             else{
                socketio.emit("message_to_server", {message:msg, sendTo:loc, bold: isBold});
             }
-      }
+         }
          document.getElementById("message_input").value = "";
-      
+
       }
 /* ============================================================================
 Room Helper Functions
@@ -318,7 +354,7 @@ JQUERY Listeners
 ==============================================================================*/
       //return key for sending message
       $('#sendMs').click(function(){
-         alert("clicked");
+         // alert("clicked");
          sendMessage();
       });
 
@@ -330,13 +366,54 @@ JQUERY Listeners
          }
       });
 
+      //wrap chat log
       $('#chatlog').wrap("<div></div>");
 
+      //loading Image adapted from Arch1tect Chatbox example
+     function readThenSendFile(data) {
+
+      //first check file size 
+        if((data.size/1024/1024) > 5) {
+            alert("Don't upload file larger than "+File_Size_Limit+" MB!");
+            return;
+        }
+        else{
+            var reader = new FileReader();
+            reader.onload = function(evt){
+
+               var file = evt.target.result;
+               var fileName = data.name;
+               var croom = document.getElementById("header").innerHTML;
+
+               socketio.emit("image_to_server", {message:fileName, room: croom, image:file});
+            };
+            reader.readAsDataURL(data);
+
+            // alert("image sent");
+
+        }
+
+        
+
+      }
+
+
+      //sends the image when inputs
+      $(document).ready(function(){
+         $('#image_input').on('change', function(e) {
+           var data = e.originalEvent.target.files[0];
+           readThenSendFile(data);
+
+           // alert("image called");
+         });
+      });
+      //image reading
+       
 
       </script>
-<!-- ========================================================================================================================= -->
+<!-- ===============================================================================================================================================================================================================================================================================-->
 <!-- HTML -->
-<!-- ========================================================================================================================= -->
+<!-- =============================================================================================================================================================================================================================================================================== -->
 
    </head>
 
@@ -356,10 +433,16 @@ JQUERY Listeners
       <h2 id = "header">general</h2>
 <!-- Chat window and chat input -->
          <div id= "chatBox">
+            <!-- Main Message option -->
             <input type=text id="message_input"/>
             <button onclick="sendMessage()">Send</button>
             <input type=checkbox id="bold"/>Emphasis
 
+            <!-- Send image option -->
+            <input type='file' accept='image/*' id='image_input'><br>
+            <img id='output'>
+
+            <!-- Private message option -->
             <form name="output">
                <select name="sendTo" id="location" size="1">
                   <option value="all">All</option>
