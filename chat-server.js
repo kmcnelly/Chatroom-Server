@@ -17,6 +17,14 @@ function roomLoop(array, item){
 		}
 	}
 	return false;
+}
+function findCreator(array, item){
+	for (var i = 0; i < array.length; i++) {
+		if(array[i][0] == item){
+			return array[i][2];
+		}
+	}
+	return false;
 }	
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp){
@@ -37,13 +45,18 @@ var io = socketio.listen(app);
 
 io.sockets.on("connection", function(socket){
 	//prints the list of existing rooms to the dropdown.
-	
+	socket.join('general');
 	for(var i = 0; i < rooms.length; i++){
 		var name = rooms[i][0];
 		socket.emit("newroom",{name: name});
 	}
 	// runs when trying to join a room
 	socket.on('join', function(data) {
+		console.log(data['room']);
+		if(data['room'] == 'general'){
+			socket.join('general');
+		}
+		else{
 		var password = roomLoop(rooms,data['room']);
 		if(!password){
 			socket.emit("message_to_client",{message: "room doesn't exist"});
@@ -56,7 +69,7 @@ io.sockets.on("connection", function(socket){
 		else{
 			socket.emit("message_to_client",{message: "wrong password nerd"});
 		}
-		
+	}
 	});
 	socket.on('leave', function(data){
 		socket.leave(data['room']);
@@ -111,7 +124,7 @@ io.sockets.on("connection", function(socket){
 			var pass = data['password'];
 			var password = bcrypt.hashSync(pass, 10);
 			console.log(password);
-			rooms.push([data['room'],password]);
+			rooms.push([data['room'],password,socket.username]);
 			io.emit("newroom",{name: data['room']});
 		}
 		else{

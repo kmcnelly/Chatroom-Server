@@ -239,8 +239,7 @@ Action Functions
             if(loc == "all"){
 
                //to the room
-               var e = document.getElementById("rooms");
-               var room = e.options[e.selectedIndex].text;
+               var room = document.getElementById("header").innerHTML;
                socketio.emit("message_to_server", {message:msg, room: room, bold: isBold});
             }
             else{
@@ -318,7 +317,7 @@ Listeners
 
    <body>
       <h1>akIRC - Fake IRC</h1>
-      <h2 id = "header"></h2>
+      
 
 <!-- Entered  -->
       <div id= "userInBox">
@@ -329,7 +328,7 @@ Listeners
 
 <!-- All Content -->
       <div id= "content">
-
+      <h2 id = "header">general</h2>
 <!-- Chat window and chat input -->
          <div id= "chatBox">
             <input type=text id="message_input"/>
@@ -356,15 +355,12 @@ Listeners
             </div>
             <div id = "roomBox">
                <!-- Rooom selector -->
+               <p><u>Rooms</u>:</p>
                   <select name="room" id="rooms" size="1">
                      <option value="general">General</option>
                   </select>
-                  <p><input type = "text" id = "pass"></p>
+                  <p>Password (If needed):<input type = "password" id = "pass"></p>
                   <button onclick="joinRoom()">Join Room</button>
-
-               <!-- List of rooms -->
-               <p><u>Rooms</u>:</p>
-               <p id="roomList"></p>
             </div>
             <div id ="trashBox">
                   <p><b>Create New Room:</b></p>
