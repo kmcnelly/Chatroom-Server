@@ -2,11 +2,13 @@
 var http = require("http"),
 	socketio = require("socket.io"),
 	fs = require("fs");
-	// bcrypt = require("bcrypt");
+	bcrypt = require("bcrypt");
 //object users – Key: the usernames, values are the sockets
 var users = {};
 //array for rooms [name, password (hashed with bcrypt)]
 var rooms = [];
+var bans = [];
+
 //helper to iterate through the rooms if it exists
 function roomLoop(array, item){
 	for (var i = 0; i < array.length; i++) {
@@ -17,9 +19,8 @@ function roomLoop(array, item){
 			return false;
 		}
 	}
-	return "no";
-}
-
+	// return "no";
+}	
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp){
 	// This callback runs when a new connection is made to our HTTP server.
@@ -38,23 +39,28 @@ app.listen(3456);
 var io = socketio.listen(app);
 
 io.sockets.on("connection", function(socket){
- 
-	//runs when trying to join a room
-	// socket.on('join', function(data) {
-	// 	var password = roomLoop(rooms,data['room']);
-	// 	if(!password){
-	// 		socket.emit("message_to_client",{message: "room doesn't exist"});
-	// 	}
-	// 	// console.log(password);
-	// 	var res = bcrypt.compareSync(data['password'],password);
-	// 	if(res){
-	// 		socket.join(data['room']);
-	// 	}
-	// 	else{
-	// 		socket.emit("message_to_client",{message: "wrong password nerd"});
-	// 	}
+	//prints the list of existing rooms to the dropdown.
+	
+	for(var i = 0; i < rooms.length; i++){
+		var name = rooms[i][0];
+		socket.emit("newroom",{name: name});
+	}
+	// runs when trying to join a room
+	socket.on('join', function(data) {
+		var password = roomLoop(rooms,data['room']);
+		if(!password){
+			socket.emit("message_to_client",{message: "room doesn't exist"});
+		}
+		// console.log(password);
+		var res = bcrypt.compareSync(data['password'],password);
+		if(res){
+			socket.join(data['room']);
+		}
+		else{
+			socket.emit("message_to_client",{message: "wrong password nerd"});
+		}
 		
-	// });
+	});
 	// This callback runs when a new Socket.IO connection is established.
 
 	//emits updated user list
@@ -66,8 +72,14 @@ io.sockets.on("connection", function(socket){
 
 	//new user entered 
 	socket.on('new_user', function(data, callback){
+		//Check if user is banned
+		if(bans.includes(data)){
+			callback(false);
+
+			console.log("User is banned");
+		}
 		// Check if username is already present
-		if(data in users){
+		 if(data in users){
 			callback(false);
 
 			console.log("Username same");
@@ -91,17 +103,16 @@ io.sockets.on("connection", function(socket){
 			
 		}
 		
-	})
+	});
 	socket.on('createroom', function(data){
-		var xizt = roomloop(rooms, data['room']);
-		if(xizt == "no"){
+		var xizt = roomLoop(rooms, data['room']);
+		if(xizt != false){
 			socket.emit("message_to_client",{message: "room already exists"});
 		}
 		else{
-		var i = rooms.length;
 		var pass = data['password'];
 		var password = bcrypt.hashSync(pass, 10);
-		rooms[i] = [data['room'],password];
+		rooms.push([data['room'],password]);
 		console.log(password);
 		io.emit("newroom",{name: data['room']});
 		}
@@ -148,5 +159,22 @@ io.sockets.on("connection", function(socket){
 		io.sockets.emit("user_left", {message:data["message"], user: socket.username })
 
 		updateUsers();
-	})
-});
+	});
+	socket.on('kick', function(data) {
+		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
+		  socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
+		  io.sockets.sockets[users[socket]].disconnect();
+		} else {
+		  socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
+		}
+	  });
+	socket.on('ban', function(data){
+		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
+			socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
+			io.sockets.sockets[users[socket.username]].disconnect();
+			bans.push(data['user']);
+		  } else {
+			socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
+		  }
+		});
+	});

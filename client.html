@@ -4,7 +4,11 @@
       <!-- Style Sheet -->
       <!-- <link rel="stylesheet" href="style.css"> -->
       <style type="text/css">
-
+         /* body{
+            background-color: midnightblue;
+            font-family: 'Courier New';
+            color: silver
+         } */
          h1{
             border: 1px #000 solid;
          }
@@ -234,19 +238,19 @@ Action Functions
             var isBold = document.getElementById("bold").checked;
 
             //if location is to entire room
-            // if(loc == "all"){
+            if(loc == "all"){
 
-            //    //to the room
-            //    var e = document.getElementById("room");
-            //    var room = e.options[e.selectedIndex].text;
+               //to the room
+               var e = document.getElementById("rooms");
+               var room = e.options[e.selectedIndex].text;
 
                
 
-            //    socketio.emit("message_to_server", {message:msg, room: room, bold: isBold});
-            // }
-            // else{
+               socketio.emit("message_to_server", {message:msg, room: room, bold: isBold});
+            }
+            else{
                socketio.emit("message_to_server", {message:msg, sendTo:loc, bold: isBold});
-            // }
+            }
       }
          document.getElementById("message_input").value = "";
       
@@ -268,13 +272,30 @@ Room Helper Functions
 //joins an existing room
 //see above for why we restricted it
       function joinRoom(){
-            var e = document.getElementById("room");
+            var e = document.getElementById("rooms");
             var room = e.options[e.selectedIndex].value;
+            var croom = document.getElementById("header").innerHTML;
+            console.log(croom);
             var password = document.getElementById("password").value;
+            if(croom == null){
+               socketio.emit("join",{room: room, password: password});
+               document.getElementById("header").innerHTML = room;
+            }
+            else{
             socketio.emit("leave",{room: croom});
             socketio.emit("join",{room: room, password: password});
+            document.getElementById("header").innerHTML = room;
+            }
       }
-
+//whenever a new room is created it appends the new room to the selector
+      socketio.on("newroom",function(data){
+            var select = document.getElementById("rooms"); 
+            var el = document.createElement("option");
+            opt = data['name'];
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      });
 /* ============================================================================
 Listeners
 ==============================================================================*/
@@ -301,8 +322,8 @@ Listeners
    </head>
 
    <body>
-
-      <h1>akIRC - Chatroom</h1>
+      <h1>akIRC - Fake IRC</h1>
+      <h2 id = "header"></h2>
 
 <!-- Entered  -->
       <div id= "userInBox">
@@ -340,12 +361,10 @@ Listeners
             </div>
             <div id = "roomBox">
                <!-- Rooom selector -->
-               <form name="space">
                   <select name="room" id="rooms" size="1">
                      <option value="general">General</option>
                   </select>
-                  <input type="submit">
-               </form>
+                  <button onclick="joinRoom()">Join Room</button>
 
                <!-- List of rooms -->
                <p><u>Rooms</u>:</p>
