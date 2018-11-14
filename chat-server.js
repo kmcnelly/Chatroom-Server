@@ -59,7 +59,7 @@ io.sockets.on("connection", function(socket){
 		else{
 		var password = roomLoop(rooms,data['room']);
 		if(!password){
-			socket.emit("message_to_client",{message: "room doesn't exist"});
+			socket.emit("message_to_client",{message: "room doesn't exist", user:'Chat Error'});
 		}
 		console.log(password);
 		var res = bcrypt.compareSync(data['password'],password);
@@ -67,7 +67,7 @@ io.sockets.on("connection", function(socket){
 			socket.join(data['room']);
 		}
 		else{
-			socket.emit("message_to_client",{message: "wrong password nerd"});
+			socket.emit("message_to_client",{message: "wrong password", user:'Chat Error'});
 		}
 	}
 	});
@@ -128,7 +128,7 @@ io.sockets.on("connection", function(socket){
 			io.emit("newroom",{name: data['room']});
 		}
 		else{
-			socket.emit("message_to_client",{message: "room already exists"});
+			socket.emit("message_to_client",{message: "room already exists", user:'Chat Error'});
 		}
 	});
 	
