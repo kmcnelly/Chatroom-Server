@@ -8,6 +8,7 @@ var users = {};
 //array for rooms [name, password (hashed with bcrypt)]
 var rooms = [];
 var bans = [];
+var rusers = [];
 
 //helper to iterate through the rooms if it exists
 function roomLoop(array, item){
@@ -48,7 +49,7 @@ io.sockets.on("connection", function(socket){
 	socket.join('general');
 	for(var i = 0; i < rooms.length; i++){
 		var name = rooms[i][0];
-		socket.emit("newroom",{name: name});
+		socket.to(socket.username).emit("newroom",{name: name});
 	}
 	// runs when trying to join a room
 	socket.on('join', function(data) {
@@ -176,18 +177,24 @@ io.sockets.on("connection", function(socket){
 		updateUsers();
 	});
 	socket.on('kick', function(data) {
+		var maker = findCreator(rooms,data['room']);
+		if(maker = socket.username){
 		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
 		  socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
 		  io.sockets.sockets[users[socket]].disconnect();
 		} else {
 		  socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
 		}
+	}
+	else{
+		socket.emit("message_to_client",{message: "insufficient privileges"});
+	}
 	  });
 	socket.on('ban', function(data){
 		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
 			socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
 			io.sockets.sockets[users[socket.username]].disconnect();
-			bans.push(data['user']);
+			bans.push(data['user'], room);
 		  } else {
 			socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
 		  }
