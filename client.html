@@ -4,11 +4,9 @@
       <!-- Style Sheet -->
       <!-- <link rel="stylesheet" href="style.css"> -->
       <style type="text/css">
-         /* body{
-            background-color: midnightblue;
+         body{
             font-family: 'Courier New';
-            color: silver
-         } */
+         }
          h1{
             border: 1px #000 solid;
          }
@@ -243,9 +241,6 @@ Action Functions
                //to the room
                var e = document.getElementById("rooms");
                var room = e.options[e.selectedIndex].text;
-
-               
-
                socketio.emit("message_to_server", {message:msg, room: room, bold: isBold});
             }
             else{
@@ -276,7 +271,7 @@ Room Helper Functions
             var room = e.options[e.selectedIndex].value;
             var croom = document.getElementById("header").innerHTML;
             console.log(croom);
-            var password = document.getElementById("password").value;
+            var password = document.getElementById("pass").value;
             if(croom == null){
                socketio.emit("join",{room: room, password: password});
                document.getElementById("header").innerHTML = room;
@@ -364,6 +359,7 @@ Listeners
                   <select name="room" id="rooms" size="1">
                      <option value="general">General</option>
                   </select>
+                  <p><input type = "text" id = "pass"></p>
                   <button onclick="joinRoom()">Join Room</button>
 
                <!-- List of rooms -->
@@ -374,7 +370,7 @@ Listeners
                   <p><b>Create New Room:</b></p>
                   <p>New room name: <input type ="text" id="roomname"/></p>
                   <p>New password (optional): <input type = "password" id="password"/></p>
-                  <p><button onclick="createPrivateRoom()">Create new Private Room</button></p>
+                  <p><button onclick="createPrivateRoom()">Create new room</button></p>
                   
             </div>
          </div>

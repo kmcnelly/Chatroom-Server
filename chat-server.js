@@ -15,11 +15,8 @@ function roomLoop(array, item){
 		if(array[i][0] == item){
 			return array[i][1];
 		}
-		else{
-			return false;
-		}
 	}
-	// return "no";
+	return false;
 }	
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp){
@@ -51,7 +48,7 @@ io.sockets.on("connection", function(socket){
 		if(!password){
 			socket.emit("message_to_client",{message: "room doesn't exist"});
 		}
-		// console.log(password);
+		console.log(password);
 		var res = bcrypt.compareSync(data['password'],password);
 		if(res){
 			socket.join(data['room']);
@@ -60,6 +57,9 @@ io.sockets.on("connection", function(socket){
 			socket.emit("message_to_client",{message: "wrong password nerd"});
 		}
 		
+	});
+	socket.on('leave', function(data){
+		socket.leave(data['room']);
 	});
 	// This callback runs when a new Socket.IO connection is established.
 
@@ -106,15 +106,16 @@ io.sockets.on("connection", function(socket){
 	});
 	socket.on('createroom', function(data){
 		var xizt = roomLoop(rooms, data['room']);
-		if(xizt != false){
-			socket.emit("message_to_client",{message: "room already exists"});
+		console.log(xizt);
+		if(xizt == false){
+			var pass = data['password'];
+			var password = bcrypt.hashSync(pass, 10);
+			console.log(password);
+			rooms.push([data['room'],password]);
+			io.emit("newroom",{name: data['room']});
 		}
 		else{
-		var pass = data['password'];
-		var password = bcrypt.hashSync(pass, 10);
-		rooms.push([data['room'],password]);
-		console.log(password);
-		io.emit("newroom",{name: data['room']});
+			socket.emit("message_to_client",{message: "room already exists"});
 		}
 	});
 	
@@ -123,7 +124,7 @@ io.sockets.on("connection", function(socket){
 		// This callback runs when the server receives a new message from the client.
 		
 		var sendTo = data["sendTo"];
-
+		var room = data['room'];
 		//find user in list of users
 		if(sendTo in users){
 			//WHISPER
@@ -140,7 +141,7 @@ io.sockets.on("connection", function(socket){
 			//to ALL
 			console.log("message: "+data["message"]); // log it to the Node.JS output
 
-			io.sockets.emit("message_to_client", {message:data["message"], user: socket.username, bold:data["bold"] }) // broadcast the message to other users
+			io.sockets.to(room).emit("message_to_client", {message:data["message"], user: socket.username, bold:data["bold"] }) // broadcast the message to other users
 		}
 	});
 
