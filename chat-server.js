@@ -108,7 +108,9 @@ io.sockets.on("connection", function(socket){
 				io.sockets.to(socket.room).emit("user_entered", {message:socket.room, user: socket.username });
 			}
 			else{
+
 				socket.emit("message_to_client",{message: "wrong password", user:'Chat Error'});
+				socket.emit("fail");
 			}
 		}
 	}

@@ -360,6 +360,11 @@ Room Helper Functions
             el.value = opt;
             select.appendChild(el);
       });
+      socketio.on("fail", function(){
+         socketio.emit("join", {room: 'general'});
+         document.getElementById("header").innerHTML = 'general';
+         });
+
 /* ============================================================================
 The Long Banhammer of the Law
 ==============================================================================*/
