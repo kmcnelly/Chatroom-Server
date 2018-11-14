@@ -185,7 +185,10 @@ io.sockets.on("connection", function(socket){
 		if(maker = socket.username){
 			console.log(users[sucker].id);
 			socket = io.sockets.connected[users[sucker].id];
+			console.log(data['room']);
 			socket.leave(data['room']);
+			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
+			socket.emit("kicked");
 		} 
 	else{
 		socket.emit("message_to_client",{message: "insufficient privileges"});

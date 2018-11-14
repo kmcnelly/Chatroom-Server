@@ -285,7 +285,8 @@ Room Helper Functions
       }
       function kick(){
          var sucker = document.getElementById('tokick').value;
-         socketio.emit("kick", {user: sucker});
+         var room = document.getElementById("header").innerHTML;
+         socketio.emit("kick", {user: sucker, room: room});
       }
 //whenever a new room is created it appends the new room to the selector
       socketio.on("newroom",function(data){
@@ -296,6 +297,14 @@ Room Helper Functions
             el.value = opt;
             select.appendChild(el);
       });
+/* ============================================================================
+The Long Banhammer of the Law
+==============================================================================*/
+      socketio.on('kicked', function(){
+         socketio.emit("join",{room: 'general'});
+         document.getElementById("header").innerHTML = 'general';
+      })
+
 /* ============================================================================
 Listeners
 ==============================================================================*/
