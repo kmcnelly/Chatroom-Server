@@ -232,26 +232,34 @@ io.sockets.on("connection", function(socket){
 	socket.on('kick', function(data) {
 		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
-		console.log(maker);
+		// console.log(maker);
 		if(maker = socket.username){
-			console.log(users[sucker].id);
+			// console.log(users[sucker].id);
 			socket = io.sockets.connected[users[sucker].id];
-			console.log(data['room']);
+			// console.log(data['room']);
 			socket.leave(data['room']);
 			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
 			socket.emit("kicked");
-		} 
-		else{
-			socket.emit("message_to_client",{message: "insufficient privileges", user:'Chat Error'});
 		}
-	 });
-	socket.on('ban', function(data){
-		if (typeof io.sockets.sockets[data['user']] != 'undefined') {
-			socket.emit('message', {text: users[socket] + ' kicked: ' + data['user']});
-			io.sockets.sockets[users[socket.username]].disconnect();
-			bans.push(data['user'], room);
-		  } else {
-			socket.emit('message', {text: 'User: ' + data['user'] + ' does not exist.'});
-		  }
-		});
-	});
+	else{
+		socket.emit("message_to_client",{message: "insufficient privileges"});
+	}
+	  });
+});
+
+socket.on('ban', function(data) {
+	var sucker = data['user'];
+	var maker = findCreator(rooms,data['room']);
+	// console.log(maker);
+	if(maker = socket.username){
+		// console.log(users[sucker].id);
+		socket = io.sockets.connected[users[sucker].id];
+		// console.log(data['room']);
+		socket.leave(data['room']);
+		socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
+		socket.emit("kicked");
+	}
+else{
+	socket.emit("message_to_client",{message: "insufficient privileges"});
+}
+  });
