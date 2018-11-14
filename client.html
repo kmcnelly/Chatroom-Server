@@ -285,6 +285,11 @@ Room Helper Functions
                socketio.emit("join",{room: room, password: password});
                document.getElementById("header").innerHTML = room;
             }
+            else if(croom == 'general'){
+               socketio.emit("leaveGeneral",{room: croom});
+               socketio.emit("join",{room: room, password: password});
+               document.getElementById("header").innerHTML = room;
+            }
             else{
                socketio.emit("leave",{room: croom});
                socketio.emit("join",{room: room, password: password});

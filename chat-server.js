@@ -8,7 +8,8 @@ var users = {};
 //array for rooms [name, password (hashed with bcrypt)]
 var rooms = [];
 var bans = [];
-var rusers = [];
+var rusers = []; //holds the users in each room
+var rusersHelper = []; //maps the positions of the rooms
 
 //helper to iterate through the rooms if it exists
 function roomLoop(array, item){
@@ -23,6 +24,15 @@ function findCreator(array, item){
 	for (var i = 0; i < array.length; i++) {
 		if(array[i][0] == item){
 			return array[i][2];
+		}
+	}
+	return false;
+}
+function findUser(array, item, where){
+	for (var i = 1; i < array[where].length; i++) {
+		console.log(array[where][i])
+		if(array[where][i] == item){
+			return i;
 		}
 	}
 	return false;
@@ -83,9 +93,11 @@ io.sockets.on("connection", function(socket){
 			if(res){
 
 				socket.join(data['room']);
-
+				
 				socket.room = data['room'];
-
+				var where = rusersHelper.indexOf(data['room']);
+				rusers[where].push(socket.username);
+				console.log(rusers);
 				//notifies chatroom of new member
 				io.sockets.to(socket.room).emit("user_entered", {message:socket.room, user: socket.username });
 			}
@@ -97,7 +109,16 @@ io.sockets.on("connection", function(socket){
 
 	//leaving room
 	socket.on('leave', function(data){
+		var where = rusersHelper.indexOf(data['room']); //finds where in the array the room is
+		var here = findUser(rusers, socket.username, where); //finds where in the room the user joined
+		console.log(rusers[where]);
+		rusers[where].splice[here,1];
+		console.log(rusers);
+		io.sockets.to(socket.room).emit("user_left", {message:socket.room, user: socket.username });
 
+		socket.leave(data['room']);
+	});
+	socket.on('leaveGeneral', function(data){
 		io.sockets.to(socket.room).emit("user_left", {message:socket.room, user: socket.username });
 
 		socket.leave(data['room']);
@@ -153,6 +174,8 @@ io.sockets.on("connection", function(socket){
 			var password = bcrypt.hashSync(pass, 10);	
 			console.log(password);
 			rooms.push([data['room'],password,socket.username]);
+			rusers.push([data['room']]);
+			rusersHelper.push(data['room']);
 			io.emit("newroom",{name: data['room']});
 		}
 		else{
@@ -210,11 +233,38 @@ io.sockets.on("connection", function(socket){
 		var sucker = data['user'];
 		var maker = findCreator(rooms,data['room']);
 		// console.log(maker);
-		if(maker = socket.username){
+		if(maker == socket.username){
+			var where = rusersHelper.indexOf(data['room']);
+			console.log(where); //finds where in the array the room is
+			var here = findUser(rusers, data['user'], where);
+			console.log(here);
+			if(findUser(rusers, data['user'], where) == false){
+				socket.emit("message_to_client",{message: "user not found in room", user:'Admin'});
+			}
+			else{
 			// console.log(users[sucker].id);
 			socket = io.sockets.connected[users[sucker].id];
 			// console.log(data['room']);
 			socket.leave(data['room']);
+			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
+			socket.emit("kicked");
+			}
+		}
+		else{
+		socket.emit("message_to_client",{message: "insufficient privileges", user:'Admin'});
+		}
+	  });
+	socket.on('ban', function(data) {
+		var sucker = data['user'];
+		var room = data['room'];
+		bans.push([room,sucker])
+		var maker = findCreator(rooms,room);
+		// console.log(maker);
+		if(maker == socket.username){
+			// console.log(users[sucker].id);
+			socket = io.sockets.connected[users[sucker].id];
+			// console.log(data['room']);
+			socket.leave(room);
 			socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
 			socket.emit("kicked");
 		}
@@ -224,20 +274,5 @@ io.sockets.on("connection", function(socket){
 	  });
 });
 
-socket.on('ban', function(data) {
-	var sucker = data['user'];
-	var maker = findCreator(rooms,data['room']);
-	// console.log(maker);
-	if(maker = socket.username){
-		// console.log(users[sucker].id);
-		socket = io.sockets.connected[users[sucker].id];
-		// console.log(data['room']);
-		socket.leave(data['room']);
-		socket.emit("message_to_client",{message: "You have been kicked.", user:'Admin'})
-		socket.emit("kicked");
-	}
-else{
-	socket.emit("message_to_client",{message: "insufficient privileges"});
-}
-  });
+
 
